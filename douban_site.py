@@ -14,10 +14,7 @@ from time import sleep
 from bs4 import BeautifulSoup
 
 
-#newUser = set()
-#oldUser = set()
 cookieFile = r'/home/mew7wo/python/douban/douban_cookie'
-#newUser.add('http://www.douban.com/people/ecqzone/')
 
 
 def login():
