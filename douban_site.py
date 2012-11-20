@@ -10,13 +10,14 @@ import urllib
 import cookielib
 import sys
 import socket
+from time import sleep
 from bs4 import BeautifulSoup
 
 
-newUser = set()
-oldUser = set()
-cookieFile = r'/home/mew7wo/douban/douban_cookie'
-newUser.add('http://www.douban.com/people/ecqzone/')
+#newUser = set()
+#oldUser = set()
+cookieFile = r'/home/mew7wo/python/douban/douban_cookie'
+#newUser.add('http://www.douban.com/people/ecqzone/')
 
 
 def login():
@@ -26,8 +27,7 @@ def login():
     cookieHandler =cookielib.LWPCookieJar(filename=cookieFile)
     try:
         cookieHandler.load(ignore_discard=True, ignore_expires=True)
-    except Exception, e:
-        print repr(e)
+    except cookielib.LoadError:
         cookieHandler.save(cookieFile, ignore_discard=True, ignore_expires=True)
     
     httpHandler = urllib2.HTTPHandler(debuglevel=1)
@@ -39,7 +39,6 @@ def login():
         resp = opener.open(loginReq)
     except:
         print 'login error'
-        print resp.headers
         sys.exit()
         
     cookieHandler.save(cookieFile, ignore_discard=True, ignore_expires=True)
@@ -77,17 +76,35 @@ def getUrls(page):
     return urls  
 
 def main():
-    #login()
+#login()
+    
     cookieHandler = loadCookie()
     httpHandler = urllib2.HTTPHandler(debuglevel=1)
     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookieHandler), httpHandler)
     urllib2.install_opener(opener)
     
-    host = 'http://www.douban.com/people/ecqzone/contacts'
-    page = getPage(host)
-    urls = getUrls(page)
-    for i in urls:
-        print '%s\n' % i
+
+    newUrl = set()
+    oldUrl = set()
+    newUrl.add('http://www.douban.com/people/ecqzone/contacts')
+
+    for i in range(3):
+        curUrl = newUrl
+        newUrl = set()
+        for url in curUrl:
+            if url not in oldUrl:
+                page = getPage(url)
+                urls = getUrls(page)
+                newUrl = newUrl.union(urls)
+                oldUrl.add(url)
+                sleep(2)
+                
+
+    with open('/home/mew7wo/python/douban/user_urls.txt', 'w') as f:
+        for url in oldUrl:
+            f.write(url + '\n')
+
+
 
 if __name__ == '__main__':
     print 'begin...'
