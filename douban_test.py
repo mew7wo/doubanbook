@@ -12,11 +12,22 @@ def testLogin():
     db = DouBan()
     cookie_file = '/home/mew7wo/python/douban/cookie_test'
     try:
-        db.login('1398882026@qq.com', 'liumengchao', './fuck')
+        db.login('./fuck')
     except Exception, e:
         print repr(e)    
         print 'login failure'
         sys.exit(1) 
 
+def testRun():
+    db = DouBan()
+    try:
+        db.login('cookie_test')
+        db.run()
+    except Exception, e:
+        print repr(e)
+        print 'run failure'
+        sys.exit(1)
+
 if __name__ == '__main__':
-    testLogin()
+#testLogin()
+    testRun()

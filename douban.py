@@ -17,8 +17,8 @@ class DouBan():
     ''' douban spider '''
     
     def __init__(self):
-        self._new_url = set()
-        self._old_url = set()
+        self._new_urls = set()
+        self._old_urls = set()
         self._opener = urllib2.build_opener()
         self._headers = {'User-Agent':'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'} 
         self.__readConfig()
@@ -28,7 +28,7 @@ class DouBan():
             content = f.read()
             root = etree.XML(content)
             self._login_url = root.xpath('/douban/login_url/text()')[0]
-            self._new_url.add(root.xpath('/douban/begin_url/text()')[0])
+            self._new_urls.add(root.xpath('/douban/begin_url/text()')[0])
             self._user = root.xpath('/douban/user/text()')[0]
             self._password = root.xpath('/douban/password/text()')[0]
             self._depth = int(root.xpath('/douban/depth/text()')[0])
@@ -36,9 +36,9 @@ class DouBan():
             self._speed = int(root.xpath('/douban/speed/text()')[0])
 
 
-    def login(self, user, pw, cookieFile=None):
+    def login(self, cookieFile=None):
         httpHandler = urllib2.HTTPHandler(debuglevel=1)
-        post_data = urllib.urlencode({'form_email':user, 'form_password':pw})
+        post_data = urllib.urlencode({'form_email':self._user, 'form_password':self._password})
         req = urllib2.Request(self._login_url, headers = self._headers)
         
         if cookieFile != None:
@@ -67,7 +67,7 @@ class DouBan():
 
     def __getPage(self, url):
         try:
-            req = urllib2.Request(url, headers=self.headers)
+            req = urllib2.Request(url, headers=self._headers)
             content = self._opener.open(req).read()
             return content
         except (urllib2.URLError, socket.timeout):
@@ -84,11 +84,14 @@ class DouBan():
                 new_urls.add(url)
         return new_urls
 
+
     def run(self):
         for i in range(self._depth):
             new_urls = set()
             for url in self._new_urls:
+                print url
                 if url not in self._old_urls:
+                    sleep(60/self._speed)
                     page = self.__getPage(url)
                     urls = self.__getUrls(page)
                     new_urls = new_urls.union(urls)
