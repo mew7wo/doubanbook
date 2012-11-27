@@ -18,6 +18,19 @@ def testLogin():
         print 'login failure'
         sys.exit(1) 
 
+def testPersistent():
+    db = DouBan()
+    try:
+        db.login('cookie_test')
+        db.run()
+        db.persistent()
+    except KeyboardInterrupt:
+        db.persistent()
+    except Exception, e:
+        db.persistent()
+        print repr(e)
+        sys.exit(1)
+
 def testRun():
     db = DouBan()
     try:
@@ -30,4 +43,5 @@ def testRun():
 
 if __name__ == '__main__':
 #testLogin()
-    testRun()
+#   testRun()
+    testPersistent()

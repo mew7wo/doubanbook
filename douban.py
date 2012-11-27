@@ -20,22 +20,28 @@ class DouBan():
         self._new_urls = set()
         self._old_urls = set()
         self._opener = urllib2.build_opener()
-        self._headers = {'User-Agent':'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'} 
+        self._headers = {'User-Agent':'Mozilla/5.0 (Windows NT 6.1) Chrome/23.0.1271.64 Safari/537.11'} 
         self.__readConfig()
 
+        with open('old_urls', 'r') as f:
+            for url in f:
+                self._old_urls.add(url.rstrip('\n'))
+
+        with open('new_urls', 'r') as f:
+            for url in f:
+                self._new_urls.add(url.rstrip('\n'))
+
+
     def __readConfig(self):
-        with open(r'./config/config.xml', 'r') as f:
+        with open('./config/config.xml', 'r') as f:
             content = f.read()
             root = etree.XML(content)
             self._login_url = root.xpath('/douban/login_url/text()')[0]
-            self._new_urls.add(root.xpath('/douban/begin_url/text()')[0])
             self._user = root.xpath('/douban/user/text()')[0]
             self._password = root.xpath('/douban/password/text()')[0]
             self._depth = int(root.xpath('/douban/depth/text()')[0])
-            self._threads = int(root.xpath('/douban/threads/text()')[0])
-            self._speed = int(root.xpath('/douban/speed/text()')[0])
 
-
+     
     def login(self, cookieFile=None):
         httpHandler = urllib2.HTTPHandler(debuglevel=1)
         post_data = urllib.urlencode({'form_email':self._user, 'form_password':self._password})
@@ -55,10 +61,9 @@ class DouBan():
             except (urllib2.URLError, socket.timeout):
                 raise urllib2.URLError()
             cookieHandler.save(cookieFile, ignore_discard=True, ignore_expires=True)
-                
         else:
             cj = cookielib.CookieJar()
-            self.opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj), httpHandler)
+            self._opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj), httpHandler)
             try:
                 resp = self._opener.open(req, data=post_data)
             except (urllib2.URLError, socket.timeout):
@@ -73,6 +78,9 @@ class DouBan():
         except (urllib2.URLError, socket.timeout):
             raise urllib2.URLError()
             
+    def __urlValid(self, url):
+        if url == None: return False
+        return True
 
     # //*[@id="content"]/div/div[1]/div[3]/dl/dt/a/@href
     def __getUrls(self, page):
@@ -80,21 +88,31 @@ class DouBan():
         urls = root.xpath('//*[@id="content"]/div/div[1]/div[3]/dl/dt/a/@href')
         new_urls = set()
         for url in urls:
-            if url != None:
+            if self.__urlValid(url):
                 new_urls.add(url)
         return new_urls
+
+
+    def persistent(self):
+        with open(r'new_urls', 'w') as f:
+            for url in self._new_urls:
+                f.write(url + '\n')
+
+        with open(r'old_urls', 'w') as f:
+            for url in self._old_urls:
+                f.write(url + '\n')
 
 
     def run(self):
         for i in range(self._depth):
             new_urls = set()
             for url in self._new_urls:
-                print url
+                print '================================== %d ==================================' % i
                 if url not in self._old_urls:
-                    sleep(60/self._speed)
-                    page = self.__getPage(url)
+                    sleep(2)
+                    page = self.__getPage(url + 'contacts')
                     urls = self.__getUrls(page)
                     new_urls = new_urls.union(urls)
                     self._old_urls.add(url)
-            self._new_urls = self._new_urls.union(new_urls)
+            self._new_urls = new_urls
 
