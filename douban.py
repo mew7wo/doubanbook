@@ -32,6 +32,7 @@ class DouBan():
                 self._new_urls.add(url.rstrip('\n'))
 
 
+
     def __readConfig(self):
         with open('./config/config.xml', 'r') as f:
             content = f.read()
@@ -40,6 +41,7 @@ class DouBan():
             self._user = root.xpath('/douban/user/text()')[0]
             self._password = root.xpath('/douban/password/text()')[0]
             self._depth = int(root.xpath('/douban/depth/text()')[0])
+            
 
      
     def login(self, cookieFile=None):
@@ -77,10 +79,12 @@ class DouBan():
             return content
         except (urllib2.URLError, socket.timeout):
             raise urllib2.URLError()
+
             
     def __urlValid(self, url):
         if url == None: return False
         return True
+
 
     # //*[@id="content"]/div/div[1]/div[3]/dl/dt/a/@href
     def __getUrls(self, page):
@@ -109,7 +113,7 @@ class DouBan():
             for url in self._new_urls:
                 print '================================== %d ==================================' % i
                 if url not in self._old_urls:
-                    sleep(2)
+                    sleep(2.5)
                     page = self.__getPage(url + 'contacts')
                     urls = self.__getUrls(page)
                     new_urls = new_urls.union(urls)
