@@ -2,35 +2,28 @@
 #coding=utf-8
 #author:mew7wo
 #mail:mew7wo@gmail.com
-#filename:douban.py
+#filename:douban_user.py
 #create time:Tue 20 Nov 2012 08:16:05 PM CST
 
 import urllib2
 import urllib
 import cookielib
 import socket
+import re
+from redis import Redis
 from lxml import etree
 from time import sleep
 
 
-class DouBan():
+class DouBanUser():
     ''' douban spider '''
-    
     def __init__(self):
-        self._new_urls = set()
-        self._old_urls = set()
+        self._rq = Redis()
+        self._old_key = 'set:url:old'
+        self._new_key = 'set:url:new'
         self._opener = urllib2.build_opener()
         self._headers = {'User-Agent':'Mozilla/5.0 (Windows NT 6.1) Chrome/23.0.1271.64 Safari/537.11'} 
         self.__readConfig()
-
-        with open('old_urls', 'r') as f:
-            for url in f:
-                self._old_urls.add(url.rstrip('\n'))
-
-        with open('new_urls', 'r') as f:
-            for url in f:
-                self._new_urls.add(url.rstrip('\n'))
-
 
 
     def __readConfig(self):
@@ -82,9 +75,11 @@ class DouBan():
 
             
     def __urlValid(self, url):
+        r = re.compile(r'http://www.douban.com/people/*')
         if url == None: return False
-        return True
+        if r.search(url) == None: return False
 
+        return True
 
     # //*[@id="content"]/div/div[1]/div[3]/dl/dt/a/@href
     def __getUrls(self, page):
@@ -95,28 +90,17 @@ class DouBan():
             if self.__urlValid(url):
                 new_urls.add(url)
         return new_urls
-
-
-    def persistent(self):
-        with open(r'new_urls', 'w') as f:
-            for url in self._new_urls:
-                f.write(url + '\n')
-
-        with open(r'old_urls', 'w') as f:
-            for url in self._old_urls:
-                f.write(url + '\n')
-
+                
 
     def run(self):
-        for i in range(self._depth):
-            new_urls = set()
-            for url in self._new_urls:
-                print '================================== %d ==================================' % i
-                if url not in self._old_urls:
-                    sleep(2.5)
-                    page = self.__getPage(url + 'contacts')
-                    urls = self.__getUrls(page)
-                    new_urls = new_urls.union(urls)
-                    self._old_urls.add(url)
-            self._new_urls = new_urls
+        url = self._rq.spop(self._new_key)
+        while url:
+            if self._rq.sismember(self._old_key, url) == 0:
+                sleep(2.5)
+                page = self.__getPage(url + 'contacts')
+                urls = self.__getUrls(page)
+                for u in urls:
+                    self._rq.sadd(self._new_key, u)
+                self._rq.sadd(self._old_key, url)
 
+            url = self._rq.spop(self._new_key)

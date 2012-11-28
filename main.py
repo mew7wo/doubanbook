@@ -17,9 +17,6 @@ def main():
         print 'ctrl - c'
     except Exception, e:
         print repr(e)
-    finally:
-        db.persistent()
-
 
 
 if __name__ == '__main__':
