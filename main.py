@@ -6,10 +6,10 @@
 #create time:Tue 27 Nov 2012 04:01:23 PM CST
 
 
-from douban import DouBan
+from douban_user import DouBanUser
 
 def main():
-    db = DouBan()
+    db = DouBanUser()
     db.login('douban_cookie')
     try:
         db.run()
