@@ -6,7 +6,7 @@
 #create time:Tue 27 Nov 2012 04:01:23 PM CST
 
 
-from douban_user import DouBanUser
+from data_fetch.douban_user import DouBanUser
 
 def main():
     db = DouBanUser()

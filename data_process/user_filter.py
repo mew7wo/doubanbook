@@ -12,7 +12,7 @@ def readTags(fileName):
     tags = set()
     with open(fileName, 'r') as f:
         for line in f:
-            tags.add(line.rstrip('\n').decode('utf-8'))
+            tags.add(line.rstrip('\r\n').decode('utf-8'))
 
     return tags
 
@@ -23,6 +23,7 @@ def main():
         for line in f:
             user = json.loads(line.rstrip('\n'))
             user_tags = [tag['title'] for tag in user['tags']]
+#  print user_tags[0].encode('utf-8')
             for tag in user_tags:
                 if tag not in tags:
                     continue
