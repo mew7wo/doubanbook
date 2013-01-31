@@ -9,6 +9,7 @@ import urllib2
 import urllib
 import cookielib
 import socket
+from time import sleep
 
 
 class Fetcher(object):
@@ -41,7 +42,8 @@ class Fetcher(object):
         finally:
             return resp 
 
-    def get(self, url):
+    def get(self, url, sleeptime=None):
+        if sleeptime != None: sleep(sleeptime)
         req = urllib2.Request(url, headers=self.__class__.headers)
         content = self.__get(req).read()
         return content

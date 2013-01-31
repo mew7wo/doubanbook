@@ -15,7 +15,7 @@ def testGet():
     content = f.get('http://www.douban.com/people/51417203/')
 #    content = f.get('http://www.douban.com/people/dadfsajfio')
 #    content = f.get('httafdajfpd')
-    content = f.get(None)
+    content = f.get(None, 2)
     print content
      
 
