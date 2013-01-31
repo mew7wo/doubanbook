@@ -12,7 +12,7 @@ import socket
 from time import sleep
 
 
-class Fetcher(object):
+class Fetch(object):
     ''' url fetch class '''
     headers = {'User-Agent':'Mozilla/5.0 (Windows NT 6.1) Chrome/23.0.1271.64 Safari/537.11'}
     opener = None

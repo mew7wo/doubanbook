@@ -6,25 +6,28 @@
 #create time:Wed 30 Jan 2013 02:49:41 PM CST
 
 import re
-from xml import etree
+from lxml import etree
 
-class UserFollowed():
+class Followed():
     ''' get user follower module '''
     def __init__(self):
         self._xpath = r'//*[@id="content"]/div/div[1]/div[3]/dl/dd/a/@href'
 
-    def getUserFollowed(page):
+    def getUrlByUser(self, user):
+        return 'http://www.douban.com/people/%s/contacts' % user
+
+    def getFollowedUser(self, page):
         new_users = set()
         try:
             html = etree.HTML(page)
             urls = html.xpath(self._xpath)
             for url in urls:    
                 if self.__validUrl(url):
-                    new_user.add(self.__getUserId(url))
-        except e:
+                    new_users.add(self.__getUserId(url))
+        except Exception, e:
             print repr(e)
 
-        return new_users
+        return [user.split('/')[4] for user in new_users]
 
     def __validUrl(self, url):
         r = re.compile(r'http://www.douban.com/people/*')

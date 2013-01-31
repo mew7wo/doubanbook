@@ -8,10 +8,10 @@
 import sys
 sys.path.append('..')
 
-from utils.fetch import Fetcher
+from utils.fetch import Fetch
 
 def testGet():
-    f = Fetcher()
+    f = Fetch()
     content = f.get('http://www.douban.com/people/51417203/')
 #    content = f.get('http://www.douban.com/people/dadfsajfio')
 #    content = f.get('httafdajfpd')
