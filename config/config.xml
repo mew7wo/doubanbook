@@ -1,9 +1,0 @@
-<douban>
-    <login_url>http://www.douban.com/accounts/login</login_url>
-    <user>1398882026@qq.com</user>
-    <password>liumengchao</password>
-    <begin_url>http://www.douban.com/people/ecqzone/contacts</begin_url>
-    <depth>3</depth>
-    <threads>1</threads>
-    <speed>30</speed>
-</douban>
