@@ -12,6 +12,7 @@ class Followed():
     ''' get user follower module '''
     def __init__(self):
         self._xpath = r'//*[@id="content"]/div/div[1]/div[3]/dl/dd/a/@href'
+        #self._xpath = r'//*[@id="content"]/div/div[1]/div[3]/dl/dd/a'
 
     def getUrlByUser(self, user):
         return 'http://www.douban.com/people/%s/contacts' % user
@@ -21,13 +22,13 @@ class Followed():
         try:
             html = etree.HTML(page)
             urls = html.xpath(self._xpath)
-            for url in urls:    
+            for url in urls:
                 if self.__validUrl(url):
                     new_users.add(self.__getUserId(url))
         except Exception, e:
             print repr(e)
 
-        return [user.split('/')[4] for user in new_users]
+        return new_users
 
     def __validUrl(self, url):
         r = re.compile(r'http://www.douban.com/people/*')

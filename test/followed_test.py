@@ -17,7 +17,6 @@ def main():
     fol = Followed()
     url = fol.getUrlByUser('fenng')
     page = fetch.get(url, sleeptime=2)
-    print page
     followed_user = fol.getFollowedUser(page)
     for user in followed_user:
         print '%s\n' % user
